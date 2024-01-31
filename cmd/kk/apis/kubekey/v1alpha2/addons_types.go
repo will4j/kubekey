@@ -32,6 +32,7 @@ type Sources struct {
 }
 
 type Chart struct {
+	Release    string   `yaml:"release" json:"release,omitempty"`
 	Name       string   `yaml:"name" json:"name,omitempty"`
 	Repo       string   `yaml:"repo" json:"repo,omitempty"`
 	Path       string   `yaml:"path" json:"path,omitempty"`

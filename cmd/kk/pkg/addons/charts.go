@@ -47,6 +47,7 @@ func debug(format string, v ...interface{}) {
 	}
 }
 
+// InstallChart install helm chart, see https://helm.sh/docs/intro/using_helm/#more-installation-methods
 func InstallChart(kubeConf *common.KubeConf, addon *kubekeyapiv1alpha2.Addon, kubeConfig string) error {
 	actionConfig := new(action.Configuration)
 	var settings = cli.New()
@@ -75,17 +76,14 @@ func InstallChart(kubeConf *common.KubeConf, addon *kubekeyapiv1alpha2.Addon, ku
 
 	var chartName string
 	if addon.Sources.Chart.Name != "" {
-		if addon.Sources.Chart.Repo == "" && addon.Sources.Chart.Path != "" {
-			fmt.Println(addon.Sources.Chart.Repo)
-			chartName = filepath.Join(addon.Sources.Chart.Path, addon.Sources.Chart.Name)
-		} else {
-			chartName = addon.Sources.Chart.Name
-		}
+		chartName = addon.Sources.Chart.Name
+	} else if addon.Sources.Chart.Repo == "" && addon.Sources.Chart.Path != "" {
+		chartName = addon.Sources.Chart.Path
 	} else {
-		logger.Log.Fatalln("No chart name is specified")
+		logger.Log.Fatalln("No chart name or path is specified")
 	}
 
-	args := []string{addon.Name, chartName}
+	args := []string{addon.Sources.Chart.Release, chartName}
 
 	client.Install = true
 	client.Namespace = namespace
