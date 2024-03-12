@@ -39,6 +39,7 @@ type Argument struct {
 	IgnoreErr           bool
 	SkipInstallAddons   bool
 	EnabledAddons       []string
+	SkipConfigureOS     bool
 	SkipPullImages      bool
 	SkipPushImages      bool
 	SkipDependencyCheck bool
