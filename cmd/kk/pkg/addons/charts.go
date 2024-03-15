@@ -68,8 +68,8 @@ func InstallChart(kubeConf *common.KubeConf, addon *kubekeyapiv1alpha2.Addon, ku
 	if len(addon.Sources.Chart.Values) != 0 {
 		valueOpts.Values = addon.Sources.Chart.Values
 	}
-	if len(addon.Sources.Chart.ValuesFile) != 0 {
-		valueOpts.ValueFiles = []string{addon.Sources.Chart.ValuesFile}
+	if len(addon.Sources.Chart.ValueFiles) != 0 {
+		valueOpts.ValueFiles = append([]string{}, addon.Sources.Chart.ValueFiles...)
 	}
 
 	client := action.NewUpgrade(actionConfig)
