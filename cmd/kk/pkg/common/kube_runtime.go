@@ -38,6 +38,8 @@ type Argument struct {
 	Debug               bool
 	IgnoreErr           bool
 	SkipConfigureOS     bool
+	SkipInstallAddons   bool
+	EnabledAddons       []string
 	SkipPullImages      bool
 	SkipPushImages      bool
 	SkipDependencyCheck bool
