@@ -155,6 +155,7 @@ func GetImage(runtime connector.ModuleRuntime, kubeConf *common.KubeConf, name s
 
 type SaveImages struct {
 	common.ArtifactAction
+	ImageTransport string
 }
 
 func (s *SaveImages) Execute(runtime connector.Runtime) error {
@@ -175,7 +176,7 @@ func (s *SaveImages) Execute(runtime connector.Runtime) error {
 			auth = v
 		}
 
-		srcName := fmt.Sprintf("docker://%s", image)
+		srcName := formatImageName(s.ImageTransport, image)
 		for _, platform := range s.Manifest.Spec.Arches {
 			arch, variant := ParseArchVariant(platform)
 			// placeholder
@@ -232,7 +233,8 @@ func (s *SaveImages) Execute(runtime connector.Runtime) error {
 
 type CopyImagesToRegistry struct {
 	common.KubeAction
-	ImagesPath string
+	ImagesPath     string
+	ImageTransport string
 }
 
 func (c *CopyImagesToRegistry) Execute(runtime connector.Runtime) error {
@@ -305,7 +307,7 @@ func (c *CopyImagesToRegistry) Execute(runtime connector.Runtime) error {
 		}
 
 		srcName := fmt.Sprintf("oci:%s:%s", imagesPath, ref)
-		destName := fmt.Sprintf("docker://%s", image.ImageName())
+		destName := formatImageName(c.ImageTransport, image.ImageName())
 		logger.Log.Infof("Source: %s", srcName)
 		logger.Log.Infof("Destination: %s", destName)
 
