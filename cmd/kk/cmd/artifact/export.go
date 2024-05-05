@@ -82,6 +82,7 @@ func (o *ArtifactExportOptions) Run() error {
 		ManifestFile:       o.ManifestFile,
 		Output:             o.Output,
 		CriSocket:          o.CriSocket,
+		ImageStartIndex:    o.ImageStartIndex,
 		ImageTransport:     o.ImageTransport,
 		Debug:              o.CommonOptions.Verbose,
 		IgnoreErr:          o.CommonOptions.IgnoreErr,
