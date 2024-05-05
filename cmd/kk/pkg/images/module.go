@@ -49,7 +49,8 @@ func (p *PullModule) Init() {
 
 type CopyImagesToLocalModule struct {
 	common.ArtifactModule
-	ImageTransport string
+	ImageStartIndex int
+	ImageTransport  string
 }
 
 func (c *CopyImagesToLocalModule) Init() {
@@ -59,7 +60,7 @@ func (c *CopyImagesToLocalModule) Init() {
 	copyImage := &task.LocalTask{
 		Name:   "SaveImages",
 		Desc:   "Copy images to a local OCI path from registries",
-		Action: &SaveImages{ImageTransport: c.ImageTransport},
+		Action: &SaveImages{ImageStartIndex: c.ImageStartIndex, ImageTransport: c.ImageTransport},
 	}
 
 	c.Tasks = []task.Interface{

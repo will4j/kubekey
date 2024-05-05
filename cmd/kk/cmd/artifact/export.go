@@ -34,6 +34,7 @@ type ArtifactExportOptions struct {
 	Output             string
 	CriSocket          string
 	DownloadCmd        string
+	ImageStartIndex    int
 	ImageTransport     string
 	SkipRemoveArtifact bool
 }
@@ -95,6 +96,7 @@ func (o *ArtifactExportOptions) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&o.Output, "output", "o", "", "Path to a output path")
 	cmd.Flags().StringVarP(&o.DownloadCmd, "download-cmd", "", "curl -L -o %s %s",
 		`The user defined command to download the necessary binary files. The first param '%s' is output path, the second param '%s', is the URL`)
+	cmd.Flags().IntVarP(&o.ImageStartIndex, "image-start-index", "", 0, "Save images from specific index, default to 0")
 	cmd.Flags().StringVarP(&o.ImageTransport, "image-transport", "", "", "Image transport to pull from, take values from [docker, docker-daemon]")
 	cmd.Flags().BoolVarP(&o.SkipRemoveArtifact, "skip-remove-artifact", "", false, "Skip remove artifact")
 
