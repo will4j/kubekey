@@ -247,6 +247,10 @@ kk:
 kk-linux-amd64:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "$(BUILDTAGS)" -ldflags "$(LDFLAGS)" -o $(BIN_DIR)/kk github.com/kubesphere/kubekey/v3/cmd/kk;
 
+.PHONY: kk-linux-arm64
+kk-linux-arm64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -tags "$(BUILDTAGS)" -ldflags "$(LDFLAGS)" -o $(BIN_DIR)/kk github.com/kubesphere/kubekey/v3/cmd/kk;
+
 ALL_MANAGERS = capkk k3s-bootstrap k3s-control-plane
 
 .PHONY: managers
