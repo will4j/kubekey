@@ -393,7 +393,11 @@ func (p *PushManifest) Execute(_ connector.Runtime) error {
 		digest, length, err := manifestregistry.PushManifestList(auth.Username, auth.Password, manifestSpec,
 			true, true, auth.PlainHTTP, "")
 		if err != nil {
-			return errors.Wrap(errors.WithStack(err), fmt.Sprintf("push image %s multi-arch manifest failed", imageName))
+			if strings.Contains(err.Error(), "no manifest list to push") {
+				logger.Log.Warnf("Push multi-arch manifest ignored with empty manifest list")
+			} else {
+				return errors.Wrap(errors.WithStack(err), fmt.Sprintf("push image %s multi-arch manifest failed", imageName))
+			}
 		}
 		logger.Log.Infof("Digest: %s Length: %d", digest, length)
 	}
