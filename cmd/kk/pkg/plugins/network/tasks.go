@@ -88,13 +88,15 @@ type DeployCilium struct {
 
 func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 	ciliumImage := images.GetImage(runtime, d.KubeConf, "cilium").ImageName()
+	ciliumEnvoyImage := images.GetImage(runtime, d.KubeConf, "cilium-envoy").ImageName()
 	ciliumOperatorImage := images.GetImage(runtime, d.KubeConf, "cilium-operator-generic").ImageName()
 
 	cmd := fmt.Sprintf("/usr/local/bin/helm upgrade --install cilium /etc/kubernetes/cilium.tgz --namespace kube-system "+
 		"--set operator.image.override=%s "+
 		"--set operator.replicas=1 "+
 		"--set image.override=%s "+
-		"--set \"ipam.operator.clusterPoolIPv4PodCIDRList={%s}\"", ciliumOperatorImage, ciliumImage, d.KubeConf.Cluster.Network.KubePodsCIDR)
+		"--set envoy.image.override=%s "+
+		"--set \"ipam.operator.clusterPoolIPv4PodCIDRList={%s}\"", ciliumOperatorImage, ciliumImage, ciliumEnvoyImage, d.KubeConf.Cluster.Network.KubePodsCIDR)
 
 	if d.KubeConf.Cluster.Kubernetes.DisableKubeProxy {
 		cmd = fmt.Sprintf("%s --set kubeProxyReplacement=strict --set k8sServiceHost=%s --set k8sServicePort=%d", cmd, d.KubeConf.Cluster.ControlPlaneEndpoint.Address, d.KubeConf.Cluster.ControlPlaneEndpoint.Port)
@@ -105,6 +107,11 @@ func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 		if d.KubeConf.Cluster.Network.Cilium.EncryptionType != "" {
 			cmd = fmt.Sprintf("%s --set encryption.type=%s", cmd, d.KubeConf.Cluster.Network.Cilium.EncryptionType)
 		}
+	}
+
+	// see https://docs.cilium.io/en/latest/network/servicemesh/istio/
+	if d.KubeConf.Cluster.Network.Cilium.WithIstio {
+		cmd = fmt.Sprintf("%s --set socketLB.hostNamespaceOnly=true --set cni.exclusive=false", cmd)
 	}
 
 	if _, err := runtime.GetRunner().SudoCmd(cmd, true); err != nil {

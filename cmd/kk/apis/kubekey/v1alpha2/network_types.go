@@ -43,6 +43,7 @@ type CalicoCfg struct {
 type CiliumCfg struct {
 	EncryptionEnabled bool   `yaml:"encryptionEnabled" json:"encryptionEnabled,omitempty"`
 	EncryptionType    string `yaml:"encryptionType" json:"encryptionType,omitempty"`
+	WithIstio         bool   `yaml:"withIstio" json:"withIstio,omitempty"`
 }
 
 type Typha struct {
