@@ -109,6 +109,10 @@ func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 		}
 	}
 
+	if d.KubeConf.Cluster.Network.Cilium.AutoDirectNodeRoutes {
+		cmd = fmt.Sprintf("%s --set autoDirectNodeRoutes=true", cmd)
+	}
+
 	// see https://docs.cilium.io/en/latest/network/servicemesh/istio/
 	if d.KubeConf.Cluster.Network.Cilium.WithIstio {
 		cmd = fmt.Sprintf("%s --set socketLB.hostNamespaceOnly=true --set cni.exclusive=false", cmd)
