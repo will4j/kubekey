@@ -99,7 +99,11 @@ func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 		"--set \"ipam.operator.clusterPoolIPv4PodCIDRList={%s}\"", ciliumOperatorImage, ciliumImage, ciliumEnvoyImage, d.KubeConf.Cluster.Network.KubePodsCIDR)
 
 	if d.KubeConf.Cluster.Kubernetes.DisableKubeProxy {
-		cmd = fmt.Sprintf("%s --set kubeProxyReplacement=strict --set k8sServiceHost=%s --set k8sServicePort=%d", cmd, d.KubeConf.Cluster.ControlPlaneEndpoint.Address, d.KubeConf.Cluster.ControlPlaneEndpoint.Port)
+		cmd = fmt.Sprintf("%s --set kubeProxyReplacement=true --set k8sServiceHost=%s --set k8sServicePort=%d", cmd, d.KubeConf.Cluster.ControlPlaneEndpoint.Address, d.KubeConf.Cluster.ControlPlaneEndpoint.Port)
+		// see https://docs.cilium.io/en/latest/network/servicemesh/istio/
+		if d.KubeConf.Cluster.Network.Cilium.WithIstio {
+			cmd = fmt.Sprintf("%s --set socketLB.enabled=true --set socketLB.hostNamespaceOnly=true --set cni.exclusive=false", cmd)
+		}
 	}
 
 	if d.KubeConf.Cluster.Network.Cilium.EncryptionEnabled {
@@ -115,11 +119,6 @@ func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 
 	if d.KubeConf.Cluster.Network.Cilium.Devices != "" {
 		cmd = fmt.Sprintf("%s --set devices=\"%s\"", cmd, d.KubeConf.Cluster.Network.Cilium.Devices)
-	}
-
-	// see https://docs.cilium.io/en/latest/network/servicemesh/istio/
-	if d.KubeConf.Cluster.Network.Cilium.WithIstio {
-		cmd = fmt.Sprintf("%s --set socketLB.enabled=true --set socketLB.hostNamespaceOnly=true --set cni.exclusive=false", cmd)
 	}
 
 	if _, err := runtime.GetRunner().SudoCmd(cmd, true); err != nil {
