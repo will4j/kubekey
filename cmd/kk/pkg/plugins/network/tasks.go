@@ -88,13 +88,7 @@ type DeployCilium struct {
 
 func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 	ciliumImage := images.GetImage(runtime, d.KubeConf, "cilium").ImageName()
-	if d.KubeConf.Cluster.Network.Cilium.ImageOverride != "" {
-		ciliumImage = d.KubeConf.Cluster.Network.Cilium.ImageOverride
-	}
 	ciliumOperatorImage := images.GetImage(runtime, d.KubeConf, "cilium-operator-generic").ImageName()
-	if d.KubeConf.Cluster.Network.Cilium.OperatorImageOverride != "" {
-		ciliumOperatorImage = d.KubeConf.Cluster.Network.Cilium.OperatorImageOverride
-	}
 
 	cmd := fmt.Sprintf("/usr/local/bin/helm upgrade --install cilium /etc/kubernetes/cilium.tgz --namespace kube-system "+
 		"--set operator.image.override=%s "+
