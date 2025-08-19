@@ -119,7 +119,7 @@ func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 
 	// see https://docs.cilium.io/en/latest/network/servicemesh/istio/
 	if d.KubeConf.Cluster.Network.Cilium.WithIstio {
-		cmd = fmt.Sprintf("%s --set socketLB.hostNamespaceOnly=true --set cni.exclusive=false", cmd)
+		cmd = fmt.Sprintf("%s --set socketLB.enabled=true --set socketLB.hostNamespaceOnly=true --set cni.exclusive=false", cmd)
 	}
 
 	if _, err := runtime.GetRunner().SudoCmd(cmd, true); err != nil {
