@@ -45,6 +45,7 @@ type CiliumCfg struct {
 	EncryptionType       string `yaml:"encryptionType" json:"encryptionType,omitempty"`
 	AutoDirectNodeRoutes bool   `yaml:"autoDirectNodeRoutes" json:"autoDirectNodeRoutes,omitempty"`
 	WithIstio            bool   `yaml:"withIstio" json:"withIstio,omitempty"`
+	Devices              string `yaml:"devices" json:"devices,omitempty"`
 }
 
 type Typha struct {
