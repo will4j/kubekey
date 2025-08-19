@@ -21,6 +21,7 @@ type NetworkConfig struct {
 	KubePodsCIDR    string       `yaml:"kubePodsCIDR" json:"kubePodsCIDR,omitempty"`
 	KubeServiceCIDR string       `yaml:"kubeServiceCIDR" json:"kubeServiceCIDR,omitempty"`
 	Calico          CalicoCfg    `yaml:"calico" json:"calico,omitempty"`
+	Cilium          CiliumCfg    `yaml:"cilium" json:"cilium,omitempty"`
 	Flannel         FlannelCfg   `yaml:"flannel" json:"flannel,omitempty"`
 	Kubeovn         KubeovnCfg   `yaml:"kubeovn" json:"kubeovn,omitempty"`
 	MultusCNI       MultusCNI    `yaml:"multusCNI" json:"multusCNI,omitempty"`
@@ -37,6 +38,13 @@ type CalicoCfg struct {
 	DefaultIPPOOL         *bool      `yaml:"defaultIPPOOL" json:"defaultIPPOOL,omitempty"`
 	Typha                 Typha      `yaml:"typha" json:"typha,omitempty"`
 	Controller            Controller `yaml:"controller" json:"controller,omitempty"`
+}
+
+type CiliumCfg struct {
+	OperatorImageOverride string `yaml:"operatorImageOverride" json:"operatorImageOverride,omitempty"`
+	ImageOverride         string `yaml:"imageOverride" json:"imageOverride,omitempty"`
+	EncryptionEnabled     bool   `yaml:"encryptionEnabled" json:"encryptionEnabled,omitempty"`
+	EncryptionType        string `yaml:"encryptionType" json:"encryptionType,omitempty"`
 }
 
 type Typha struct {

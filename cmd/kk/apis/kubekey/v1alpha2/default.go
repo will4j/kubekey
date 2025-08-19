@@ -52,7 +52,7 @@ const (
 	DefaultFlannelVersion          = "v0.21.3"
 	DefaultFlannelCniPluginVersion = "v1.1.2"
 	DefaultCniVersion              = "v1.2.0"
-	DefaultCiliumVersion           = "v1.15.3"
+	DefaultCiliumVersion           = "v1.18.1"
 	DefaulthybridnetVersion        = "v0.8.6"
 	DefaultKubeovnVersion          = "v1.10.10"
 	DefalutMultusVersion           = "v3.8"
