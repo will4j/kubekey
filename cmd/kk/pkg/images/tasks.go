@@ -153,6 +153,20 @@ func GetImage(runtime connector.ModuleRuntime, kubeConf *common.KubeConf, name s
 	if kubeConf.Cluster.Registry.NamespaceRewrite != nil {
 		image.NamespaceRewrite = kubeConf.Cluster.Registry.NamespaceRewrite
 	}
+	repoAddrOverrideCfg := kubeConf.Cluster.Registry.RepoAddrOverrideCfg
+	if len(repoAddrOverrideCfg) > 0 {
+		repoAddrOverride, ok := repoAddrOverrideCfg[name]
+		if ok {
+			image.RepoAddr = repoAddrOverride
+		}
+	}
+	namespaceOverrideCfg := kubeConf.Cluster.Registry.NamespaceOverrideCfg
+	if len(namespaceOverrideCfg) > 0 {
+		namespaceOverride, ok := namespaceOverrideCfg[name]
+		if ok {
+			image.NamespaceOverride = namespaceOverride
+		}
+	}
 	return image
 }
 

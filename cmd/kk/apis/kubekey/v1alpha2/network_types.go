@@ -41,10 +41,8 @@ type CalicoCfg struct {
 }
 
 type CiliumCfg struct {
-	OperatorImageOverride string `yaml:"operatorImageOverride" json:"operatorImageOverride,omitempty"`
-	ImageOverride         string `yaml:"imageOverride" json:"imageOverride,omitempty"`
-	EncryptionEnabled     bool   `yaml:"encryptionEnabled" json:"encryptionEnabled,omitempty"`
-	EncryptionType        string `yaml:"encryptionType" json:"encryptionType,omitempty"`
+	EncryptionEnabled bool   `yaml:"encryptionEnabled" json:"encryptionEnabled,omitempty"`
+	EncryptionType    string `yaml:"encryptionType" json:"encryptionType,omitempty"`
 }
 
 type Typha struct {
