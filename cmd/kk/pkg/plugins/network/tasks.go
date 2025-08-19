@@ -39,7 +39,7 @@ import (
 	"github.com/kubesphere/kubekey/v3/cmd/kk/pkg/plugins/network/templates"
 )
 
-//go:embed cilium-1.15.3.tgz hybridnet-0.6.6.tgz templates/calico.tmpl
+//go:embed cilium-1.18.1.tgz hybridnet-0.6.6.tgz templates/calico.tmpl
 
 var f embed.FS
 
@@ -88,7 +88,13 @@ type DeployCilium struct {
 
 func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 	ciliumImage := images.GetImage(runtime, d.KubeConf, "cilium").ImageName()
+	if d.KubeConf.Cluster.Network.Cilium.ImageOverride != "" {
+		ciliumImage = d.KubeConf.Cluster.Network.Cilium.ImageOverride
+	}
 	ciliumOperatorImage := images.GetImage(runtime, d.KubeConf, "cilium-operator-generic").ImageName()
+	if d.KubeConf.Cluster.Network.Cilium.OperatorImageOverride != "" {
+		ciliumOperatorImage = d.KubeConf.Cluster.Network.Cilium.OperatorImageOverride
+	}
 
 	cmd := fmt.Sprintf("/usr/local/bin/helm upgrade --install cilium /etc/kubernetes/cilium.tgz --namespace kube-system "+
 		"--set operator.image.override=%s "+
@@ -98,6 +104,13 @@ func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 
 	if d.KubeConf.Cluster.Kubernetes.DisableKubeProxy {
 		cmd = fmt.Sprintf("%s --set kubeProxyReplacement=strict --set k8sServiceHost=%s --set k8sServicePort=%d", cmd, d.KubeConf.Cluster.ControlPlaneEndpoint.Address, d.KubeConf.Cluster.ControlPlaneEndpoint.Port)
+	}
+
+	if d.KubeConf.Cluster.Network.Cilium.EncryptionEnabled {
+		cmd = fmt.Sprintf("%s --set encryption.enabled=true", cmd)
+		if d.KubeConf.Cluster.Network.Cilium.EncryptionType != "" {
+			cmd = fmt.Sprintf("%s --set encryption.type=%s", cmd, d.KubeConf.Cluster.Network.Cilium.EncryptionType)
+		}
 	}
 
 	if _, err := runtime.GetRunner().SudoCmd(cmd, true); err != nil {
