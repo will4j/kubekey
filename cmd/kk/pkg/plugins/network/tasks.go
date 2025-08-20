@@ -100,10 +100,11 @@ func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 
 	if d.KubeConf.Cluster.Kubernetes.DisableKubeProxy {
 		cmd = fmt.Sprintf("%s --set kubeProxyReplacement=true --set k8sServiceHost=%s --set k8sServicePort=%d", cmd, d.KubeConf.Cluster.ControlPlaneEndpoint.Address, d.KubeConf.Cluster.ControlPlaneEndpoint.Port)
-		// see https://docs.cilium.io/en/latest/network/servicemesh/istio/
-		if d.KubeConf.Cluster.Network.Cilium.WithIstio {
-			cmd = fmt.Sprintf("%s --set socketLB.enabled=true --set socketLB.hostNamespaceOnly=true --set cni.exclusive=false", cmd)
-		}
+	}
+
+	// see https://docs.cilium.io/en/latest/network/servicemesh/istio/
+	if d.KubeConf.Cluster.Network.Cilium.WithIstio {
+		cmd = fmt.Sprintf("%s --set socketLB.enabled=true --set socketLB.hostNamespaceOnly=true --set cni.exclusive=false", cmd)
 	}
 
 	if d.KubeConf.Cluster.Network.Cilium.EncryptionEnabled {
