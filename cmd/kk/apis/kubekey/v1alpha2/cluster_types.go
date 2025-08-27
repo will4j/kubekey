@@ -115,10 +115,19 @@ type RegistryConfig struct {
 	DockerDataDir      string                  `yaml:"dockerDataDir" json:"dockerDataDir"`
 	RegistryDataDir    string                  `yaml:"registryDataDir" json:"registryDataDir"`
 	NamespaceOverride  string                  `yaml:"namespaceOverride" json:"namespaceOverride,omitempty"`
+	ImageOverrideCfg   map[string]ImageConfig  `yaml:"imageOverrideCfg" json:"imageOverrideCfg,omitempty"`
 	BridgeIP           string                  `yaml:"bridgeIP" json:"bridgeIP,omitempty"`
 	Auths              runtime.RawExtension    `yaml:"auths" json:"auths,omitempty"`
 	NamespaceRewrite   *NamespaceRewrite       `yaml:"namespaceRewrite" json:"namespaceRewrite"`
 	RemoteMirrors      map[string]MirrorConfig `yaml:"remoteMirrors" json:"remoteMirrors,omitempty"`
+}
+
+// ImageOverrideConfig defines the config for image repo and namespace
+type ImageConfig struct {
+	RepoAddr  string `yaml:"repoAddr" json:"repoAddr,omitempty"`
+	Namespace string `yaml:"namespace" json:"namespace,omitempty"`
+	Repo      string `yaml:"repo" json:"repo,omitempty"`
+	Tag       string `yaml:"tag" json:"tag,omitempty"`
 }
 
 // MirrorConfig defines the mirror configuration for a registry
