@@ -17,6 +17,7 @@
 package network
 
 import (
+	"bytes"
 	"embed"
 	"fmt"
 	"io"
@@ -85,11 +86,11 @@ func (s *SyncCiliumChart) Execute(runtime connector.Runtime) error {
 	if len(s.KubeConf.Cluster.Network.Cilium.Values) > 0 {
 		valuesSrc := filepath.Join(runtime.GetWorkDir(), "cilium-values.yaml")
 		// write values
-		valuesBytes, err := yaml.Marshal(s.KubeConf.Cluster.Network.Cilium.Values)
-		if err != nil {
-			return errors.Wrap(errors.WithStack(err), "Marshal cilium values failed")
-		}
-		err = ioutil.WriteFile(valuesSrc, valuesBytes, 0644)
+		var buf bytes.Buffer
+		encoder := yaml.NewEncoder(&buf)
+		encoder.SetIndent(2)
+		encoder.Encode(s.KubeConf.Cluster.Network.Cilium.Values)
+		err := ioutil.WriteFile(valuesSrc, buf.Bytes(), 0644)
 		if err != nil {
 			return errors.Wrap(errors.WithStack(err), "Write cilium values failed")
 		}
