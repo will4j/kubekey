@@ -20,6 +20,7 @@ import (
 	"embed"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,6 +29,7 @@ import (
 
 	"github.com/kubesphere/kubekey/v3/cmd/kk/apis/kubekey/v1alpha2"
 	"github.com/kubesphere/kubekey/v3/cmd/kk/pkg/utils"
+	"gopkg.in/yaml.v3"
 
 	"github.com/pkg/errors"
 
@@ -39,7 +41,7 @@ import (
 	"github.com/kubesphere/kubekey/v3/cmd/kk/pkg/plugins/network/templates"
 )
 
-//go:embed cilium-1.15.3.tgz hybridnet-0.6.6.tgz templates/calico.tmpl
+//go:embed cilium-1.18.1.tgz hybridnet-0.6.6.tgz templates/calico.tmpl
 
 var f embed.FS
 
@@ -79,6 +81,26 @@ func (s *SyncCiliumChart) Execute(runtime connector.Runtime) error {
 	if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mv %s/cilium.tgz /etc/kubernetes", common.TmpDir), true); err != nil {
 		return errors.Wrap(errors.WithStack(err), "sync cilium chart failed")
 	}
+
+	if len(s.KubeConf.Cluster.Network.Cilium.Values) > 0 {
+		valuesSrc := filepath.Join(runtime.GetWorkDir(), "cilium-values.yaml")
+		// write values
+		valuesBytes, err := yaml.Marshal(s.KubeConf.Cluster.Network.Cilium.Values)
+		if err != nil {
+			return errors.Wrap(errors.WithStack(err), "Marshal cilium values failed")
+		}
+		err = ioutil.WriteFile(valuesSrc, valuesBytes, 0644)
+		if err != nil {
+			return errors.Wrap(errors.WithStack(err), "Write cilium values failed")
+		}
+		valuesDst := filepath.Join(common.TmpDir, "cilium-values.yaml")
+		if err := runtime.GetRunner().Scp(valuesSrc, valuesDst); err != nil {
+			return errors.Wrap(errors.WithStack(err), fmt.Sprintf("sync cilium values file failed"))
+		}
+		if _, err := runtime.GetRunner().SudoCmd(fmt.Sprintf("mv %s/cilium-values.yaml /etc/kubernetes", common.TmpDir), true); err != nil {
+			return errors.Wrap(errors.WithStack(err), "sync cilium values file failed")
+		}
+	}
 	return nil
 }
 
@@ -88,16 +110,23 @@ type DeployCilium struct {
 
 func (d *DeployCilium) Execute(runtime connector.Runtime) error {
 	ciliumImage := images.GetImage(runtime, d.KubeConf, "cilium").ImageName()
+	ciliumEnvoyImage := images.GetImage(runtime, d.KubeConf, "cilium-envoy").ImageName()
 	ciliumOperatorImage := images.GetImage(runtime, d.KubeConf, "cilium-operator-generic").ImageName()
 
 	cmd := fmt.Sprintf("/usr/local/bin/helm upgrade --install cilium /etc/kubernetes/cilium.tgz --namespace kube-system "+
 		"--set operator.image.override=%s "+
 		"--set operator.replicas=1 "+
 		"--set image.override=%s "+
-		"--set \"ipam.operator.clusterPoolIPv4PodCIDRList={%s}\"", ciliumOperatorImage, ciliumImage, d.KubeConf.Cluster.Network.KubePodsCIDR)
+		"--set envoy.image.override=%s "+
+		"--set \"ipam.operator.clusterPoolIPv4PodCIDRList={%s}\"", ciliumOperatorImage, ciliumImage, ciliumEnvoyImage, d.KubeConf.Cluster.Network.KubePodsCIDR)
 
 	if d.KubeConf.Cluster.Kubernetes.DisableKubeProxy {
-		cmd = fmt.Sprintf("%s --set kubeProxyReplacement=strict --set k8sServiceHost=%s --set k8sServicePort=%d", cmd, d.KubeConf.Cluster.ControlPlaneEndpoint.Address, d.KubeConf.Cluster.ControlPlaneEndpoint.Port)
+		cmd = fmt.Sprintf("%s --set kubeProxyReplacement=true --set k8sServiceHost=%s --set k8sServicePort=%d", cmd, d.KubeConf.Cluster.ControlPlaneEndpoint.Address, d.KubeConf.Cluster.ControlPlaneEndpoint.Port)
+	}
+
+	// add --values file parameter
+	if len(d.KubeConf.Cluster.Network.Cilium.Values) > 0 {
+		cmd = fmt.Sprintf("%s --values /etc/kubernetes/cilium-values.yaml", cmd)
 	}
 
 	if _, err := runtime.GetRunner().SudoCmd(cmd, true); err != nil {
